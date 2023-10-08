@@ -9,17 +9,12 @@ export default () => ({
   mailUser: process.env.MAIL_USER,
   mailPass: process.env.MAIL_PASS,
   mailFrom: process.env.MAIL_FROM,
-  address:
+  ServerPath:
     process.env.NODE_ENV === 'development'
       ? process.env.SERVER_DEV
       : process.env.SERVER_PROD,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
-  googleCallbackURL: `${
-    process.env.NODE_ENV === 'development'
-      ? process.env.SERVER_DEV
-      : process.env.SERVER_PROD
-  }/api/auth/google/redirect`,
   facebookClientId: process.env.FACEBOOK_CLIENT_ID,
   facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET,
   facebookCallBackURL: `${

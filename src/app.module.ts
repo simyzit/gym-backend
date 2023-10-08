@@ -6,7 +6,6 @@ import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { EmailModule } from './email/email.module';
 import { MongooseModule } from '@nestjs/mongoose';
-import { PinModule } from './pin/pin.module';
 
 @Module({
   imports: [
@@ -18,7 +17,6 @@ import { PinModule } from './pin/pin.module';
     AuthModule,
     UserModule,
     EmailModule,
-    PinModule,
   ],
 })
 export class AppModule {}

@@ -93,17 +93,9 @@ export class AuthService {
       name: user.name,
       email: user.email,
       ...tokens,
-      address: this.configService.get('address'),
+      address: this.configService.get('ServerPath'),
     };
   }
-
-  // async validateUser(user: Pick<User, 'email' | 'name'>) {
-  //   const { email, name } = user;
-  //   const user = this.userService.findUserByEmail(email);
-
-  //   if (user) {
-  //   }
-  // }
 
   async refreshToken(token: string) {
     const valid = await this.validToken(

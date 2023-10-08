@@ -14,7 +14,7 @@ export const getMailConfig = async (
     },
   },
   defaults: {
-    from: `"No Reply" <${configService.get('mailFrom')}>`,
+    from: `Application Gym <${configService.get('mailFrom')}>`,
   },
   template: {
     dir: join(__dirname, '../email', 'templates'),
