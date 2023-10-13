@@ -27,4 +27,16 @@ export class EmailService {
       },
     });
   }
+
+  async emailForgotPassword(email: string, name: string, password: string) {
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Forgot password',
+      template: './forgot-password',
+      context: {
+        name,
+        password,
+      },
+    });
+  }
 }

@@ -24,3 +24,21 @@ export const getMailConfig = async (
     },
   },
 });
+
+//For prod
+// transport: {
+//   service: 'gmail',
+//   auth: {
+//     user: configService.get('mailUser'),
+//     pass: configService.get('mailPass'),
+//   },
+// },
+
+//For test
+// transport: {
+//   host: 'sandbox.smtp.mailtrap.io',
+//   auth: {
+//     user: '8ab2b3e10e0871',
+//     pass: '253ecba9204742',
+//   },
+// },

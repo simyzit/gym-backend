@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
@@ -17,44 +13,17 @@ export class UserService {
     private emailService: EmailService,
   ) {}
 
-  async verifyEmail(verificationToken: string): Promise<void> {
-    const findUser = await this.userModel.findOne({ verificationToken });
-
-    if (!findUser) throw new NotFoundException();
-
-    await this.userModel.findByIdAndUpdate(findUser._id, {
-      verificationToken: null,
-      verify: true,
-    });
-  }
-
-  async verifyAgain(reqMail: string): Promise<void> {
-    const findUser = await this.findUserByEmail(reqMail);
-
-    if (!findUser) throw new NotFoundException('User not found');
-
-    const { verify, verificationToken, name, email } = findUser;
-
-    if (verify) {
-      throw new BadRequestException('Verification has already been passed');
-    }
-
-    await this.emailService.sendEmailConfirmation({
-      name,
-      email,
-      verificationToken,
-    });
-  }
-
   async createUser(
     body: Pick<User, 'email' | 'password' | 'name'>,
     password: string,
     verificationToken: string,
+    avatarURL: string,
   ): Promise<UserDocument> {
     return await this.userModel.create({
       ...body,
       password,
       verificationToken,
+      avatarURL,
     });
   }
 
@@ -62,7 +31,9 @@ export class UserService {
     const password = v4();
     return await this.userModel.create({
       name: profile.name.givenName,
+      surname: profile.name.familyName,
       email: profile.emails[0].value,
+      avatarURL: profile.photos[0].value,
       password,
       verify: true,
     });

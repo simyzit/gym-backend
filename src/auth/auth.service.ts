@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import {
+  BadRequestException,
   ConflictException,
   ForbiddenException,
   Injectable,
@@ -8,9 +9,10 @@ import {
 } from '@nestjs/common';
 import { UserService } from 'src/user/user.service';
 import * as argon2 from 'argon2';
+import * as gravatar from 'gravatar';
 import { EmailService } from 'src/email/email.service';
 import { v4 } from 'uuid';
-import { Model, ObjectId } from 'mongoose';
+import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { JwtService } from '@nestjs/jwt';
@@ -36,22 +38,23 @@ export class AuthService {
       throw new ConflictException('Email address is already registered');
     }
     const verificationToken = v4();
+    const avatarURL = gravatar.url(email, { d: 'mp' });
     const data = await this.userService.createUser(
       body,
       password,
       verificationToken,
+      avatarURL,
     );
     await this.emailService.sendEmailConfirmation({
       name,
       email,
       verificationToken,
     });
+
     return data;
   }
 
-  async login(
-    body: Pick<User, 'email' | 'password'>,
-  ): Promise<{ accessToken: string; refreshToken: string }> {
+  async login(body: Pick<User, 'email' | 'password'>) {
     const { email, password } = body;
     const findUser = await this.userService.findUserByEmail(email);
 
@@ -68,7 +71,16 @@ export class AuthService {
 
     await this.userModel.findByIdAndUpdate(findUser._id, tokens);
 
-    return tokens;
+    return {
+      ...tokens,
+      user: {
+        email: findUser.email,
+        name: findUser.name,
+        surname: findUser.surname,
+        avatarURL: findUser.avatarURL,
+        role: findUser.role,
+      },
+    };
   }
 
   async logout(_id: Pick<UserDocument, '_id'>): Promise<void> {
@@ -78,23 +90,66 @@ export class AuthService {
     });
   }
 
-  async userAuthentication(user: UserDocument): Promise<{
-    name: string;
-    email: string;
-    accessToken: string;
-    refreshToken: string;
-    address: string;
-  }> {
+  async userAuthentication(user: UserDocument) {
     const tokens = await this.generateTokens(user._id);
 
     await this.userModel.findByIdAndUpdate(user._id, tokens);
 
     return {
-      name: user.name,
-      email: user.email,
       ...tokens,
-      address: this.configService.get('ServerPath'),
+      user: {
+        email: user.email,
+        name: user.name,
+        surname: user.surname,
+        avatarURL: user.avatarURL,
+        role: user.role,
+        address: this.configService.get('ServerPath'),
+      },
     };
+  }
+
+  async verifyEmail(verificationToken: string): Promise<void> {
+    const findUser = await this.userModel.findOne({ verificationToken });
+
+    if (!findUser) throw new NotFoundException();
+
+    await this.userModel.findByIdAndUpdate(findUser._id, {
+      verificationToken: null,
+      verify: true,
+    });
+  }
+
+  async verifyAgain(reqMail: string): Promise<void> {
+    const findUser = await this.userService.findUserByEmail(reqMail);
+
+    if (!findUser) throw new NotFoundException('User not found');
+
+    const { verify, verificationToken, name, email } = findUser;
+
+    if (verify) {
+      throw new BadRequestException('Verification has already been passed');
+    }
+
+    await this.emailService.sendEmailConfirmation({
+      name,
+      email,
+      verificationToken,
+    });
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const findUser = await this.userService.findUserByEmail(email);
+    if (!findUser) throw new NotFoundException();
+    const newPassword = v4();
+    const hashPassword = await argon2.hash(newPassword);
+    await this.userModel.findByIdAndUpdate(findUser._id, {
+      password: hashPassword,
+    });
+    await this.emailService.emailForgotPassword(
+      findUser.email,
+      findUser.name,
+      newPassword,
+    );
   }
 
   async refreshToken(token: string) {

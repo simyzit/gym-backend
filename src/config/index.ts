@@ -17,9 +17,4 @@ export default () => ({
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   facebookClientId: process.env.FACEBOOK_CLIENT_ID,
   facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET,
-  facebookCallBackURL: `${
-    process.env.NODE_ENV === 'development'
-      ? process.env.SERVER_DEV
-      : process.env.SERVER_PROD
-  }/api/auth/facebook/redirect`,
 });

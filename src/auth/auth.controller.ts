@@ -1,5 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { Controller, Get, Post, Body, HttpCode, Res } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  HttpCode,
+  Res,
+  Param,
+  Patch,
+} from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -10,6 +18,7 @@ import { RefreshDto } from './dto/refresh.dto';
 import { AuthGoogle } from './guards/google.guard';
 import { Response } from 'express';
 import { AuthFacebook } from './guards/facebook.guard';
+import { VerifyDto } from 'src/auth/dto/verify.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -45,12 +54,15 @@ export class AuthController {
     const data = await this.authService.userAuthentication(user);
     response
       .cookie('user', {
-        name: data.name,
-        email: data.email,
+        email: data.user.email,
+        name: data.user.name,
+        surname: data.user.surname,
+        avatarURL: data.user.avatarURL,
+        role: data.user.role,
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
       })
-      .redirect(data.address);
+      .redirect(data.user.address);
   }
 
   @AuthFacebook()
@@ -62,12 +74,34 @@ export class AuthController {
     const data = await this.authService.userAuthentication(user);
     response
       .cookie('user', {
-        name: data.name,
-        email: data.email,
+        email: data.user.email,
+        name: data.user.name,
+        surname: data.user.surname,
+        avatarURL: data.user.avatarURL,
+        role: data.user.role,
         accessToken: data.accessToken,
         refreshToken: data.refreshToken,
       })
-      .redirect(data.address);
+      .redirect(data.user.address);
+  }
+
+  @Patch('forgot/password/:email')
+  async forgotPassword(@Param('email') email: string) {
+    await this.authService.forgotPassword(email);
+    return { message: 'password changed successfully' };
+  }
+
+  @Get('verify/email/:verificationToken')
+  async verifyEmail(@Param('verificationToken') verificationToken: string) {
+    await this.authService.verifyEmail(verificationToken);
+    return { message: 'Verification successful' };
+  }
+
+  @Post('verify')
+  async verifyAgain(@Body() body: VerifyDto) {
+    const { email } = body;
+    await this.authService.verifyAgain(email);
+    return { message: 'Verification email sent' };
   }
 
   @Get('logout')
