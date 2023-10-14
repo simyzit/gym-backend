@@ -4,7 +4,7 @@ import { HydratedDocument } from 'mongoose';
 
 import * as argon2 from 'argon2';
 
-import { Role } from '../enum/role';
+import { Role } from '../types/enum/role';
 
 export type UserDocument = HydratedDocument<User>;
 

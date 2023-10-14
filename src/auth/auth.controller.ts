@@ -12,7 +12,7 @@ import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { Auth } from './guards/jwt.guard';
-import { CurrentUser } from './decorators/user.decorator';
+import { CurrentUser } from '../user/decorators/user.decorator';
 import { UserDocument } from 'src/user/entities/user.entity';
 import { RefreshDto } from './dto/refresh.dto';
 import { AuthGoogle } from './guards/google.guard';
