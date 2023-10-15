@@ -164,7 +164,6 @@ export class AuthService {
       this.configService.get('refreshSecretKey'),
     );
     const data = await this.userService.findUserByToken(token);
-    console.log(valid);
     if (!valid || !data) {
       throw new UnauthorizedException('Invalid refresh token');
     }
