@@ -1,4 +1,4 @@
-export default () => ({
+export default (): object => ({
   port: process.env.PORT,
   mongoUrl: process.env.MONGO_URL,
   accessSecretKey: process.env.ACCESS_SECRET_KEY,

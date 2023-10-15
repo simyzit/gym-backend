@@ -4,8 +4,9 @@ import config from './config';
 import { getDatabaseConfig } from './config/database.config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import { EmailModule } from './email/email.module';
+import { EmailModule } from './mail/mail.module';
 import { MongooseModule } from '@nestjs/mongoose';
+import { TokenModule } from './token/token.module';
 
 @Module({
   imports: [
@@ -17,6 +18,8 @@ import { MongooseModule } from '@nestjs/mongoose';
     AuthModule,
     UserModule,
     EmailModule,
+    TokenModule,
   ],
+  providers: [],
 })
 export class AppModule {}

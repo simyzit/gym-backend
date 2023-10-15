@@ -13,7 +13,7 @@ export class EmailService {
     name: string;
     email: string;
     verificationToken: string;
-  }) {
+  }): Promise<void> {
     const { name, email, verificationToken } = param;
 
     await this.mailerService.sendMail({
@@ -28,7 +28,11 @@ export class EmailService {
     });
   }
 
-  async emailForgotPassword(email: string, name: string, password: string) {
+  async emailForgotPassword(
+    email: string,
+    name: string,
+    password: string,
+  ): Promise<void> {
     await this.mailerService.sendMail({
       to: email,
       subject: 'Forgot password',

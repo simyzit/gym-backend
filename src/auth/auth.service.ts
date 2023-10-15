@@ -10,27 +10,30 @@ import {
 import { UserService } from 'src/user/user.service';
 import * as argon2 from 'argon2';
 import * as gravatar from 'gravatar';
-import { EmailService } from 'src/email/email.service';
+import { EmailService } from 'src/mail/mail.service';
 import { v4 } from 'uuid';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
-import { JwtService } from '@nestjs/jwt';
 import { ConfigService } from '@nestjs/config';
+import { TokenService } from 'src/token/token.service';
+import { RegisterUser } from './types/interfaces/register.user';
+import { Token } from '../token/types/interfaces/tokens';
+import { LoginUser } from './types/interfaces/login.user';
 
 @Injectable()
 export class AuthService {
   constructor(
     @InjectModel('User')
     private userModel: Model<UserDocument>,
-    private jwtService: JwtService,
     private userService: UserService,
     private emailService: EmailService,
     private configService: ConfigService,
+    private tokenService: TokenService,
   ) {}
   async register(
     body: Pick<User, 'email' | 'password' | 'name'>,
-  ): Promise<UserDocument> {
+  ): Promise<RegisterUser> {
     const { email, password, name } = body;
     const findUser = await this.userService.findUserByEmail(email);
 
@@ -50,11 +53,14 @@ export class AuthService {
       email,
       verificationToken,
     });
-
-    return data;
+    return {
+      name: data.name,
+      email: data.email,
+      verificationToken: data.verificationToken,
+    };
   }
 
-  async login(body: Pick<User, 'email' | 'password'>) {
+  async login(body: Pick<User, 'email' | 'password'>): Promise<LoginUser> {
     const { email, password } = body;
     const findUser = await this.userService.findUserByEmail(email);
 
@@ -67,7 +73,7 @@ export class AuthService {
       );
     }
 
-    const tokens = await this.generateTokens(findUser._id);
+    const tokens = await this.tokenService.generateTokens(findUser._id);
 
     await this.userModel.findByIdAndUpdate(findUser._id, tokens);
 
@@ -90,8 +96,8 @@ export class AuthService {
     });
   }
 
-  async userAuthentication(user: UserDocument) {
-    const tokens = await this.generateTokens(user._id);
+  async loginSocialNetwork(user: UserDocument): Promise<LoginUser> {
+    const tokens = await this.tokenService.generateTokens(user._id);
 
     await this.userModel.findByIdAndUpdate(user._id, tokens);
 
@@ -152,54 +158,25 @@ export class AuthService {
     );
   }
 
-  async refreshToken(token: string) {
-    const valid = await this.validToken(
+  async refreshToken(token: string): Promise<Token> {
+    const valid = await this.tokenService.validToken(
       token,
       this.configService.get('refreshSecretKey'),
     );
-
     const data = await this.userService.findUserByToken(token);
-
+    console.log(valid);
     if (!valid || !data) {
       throw new UnauthorizedException('Invalid refresh token');
     }
 
-    const { accessToken, refreshToken } = await this.generateTokens(data._id);
+    const { accessToken, refreshToken } =
+      await this.tokenService.generateTokens(data._id);
 
     await this.userModel.findByIdAndUpdate(data._id, {
       accessToken,
       refreshToken,
     });
 
-    return { accessToken, refreshToken };
-  }
-
-  async validToken(
-    token: string,
-    secret: string,
-  ): Promise<{ id: string } | null> {
-    try {
-      const result = await this.jwtService.verifyAsync(token, {
-        secret,
-      });
-
-      return result;
-    } catch (error) {
-      return null;
-    }
-  }
-
-  async generateTokens(
-    id: Pick<UserDocument, '_id'>,
-  ): Promise<Pick<UserDocument, 'accessToken' | 'refreshToken'>> {
-    const accessToken = await this.jwtService.signAsync({ id });
-    const refreshToken = await this.jwtService.signAsync(
-      { id },
-      {
-        secret: this.configService.get('refreshSecretKey'),
-        expiresIn: this.configService.get('refreshTokenExpires'),
-      },
-    );
     return { accessToken, refreshToken };
   }
 }

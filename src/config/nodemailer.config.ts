@@ -17,13 +17,15 @@ export const getMailConfig = async (
     from: `Application Gym <${configService.get('mailFrom')}>`,
   },
   template: {
-    dir: join(__dirname, '../email', 'templates'),
+    dir: join(__dirname, '../mail', 'templates'),
     adapter: new HandlebarsAdapter(),
     options: {
       strict: true,
     },
   },
 });
+
+// console.log((Math.floor(Math.random() * 9000000) + 1000000).toString());
 
 //For prod
 // transport: {
@@ -35,6 +37,7 @@ export const getMailConfig = async (
 // },
 
 //For test
+
 // transport: {
 //   host: 'sandbox.smtp.mailtrap.io',
 //   auth: {

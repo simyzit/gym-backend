@@ -1,5 +1,5 @@
 import { Module } from '@nestjs/common';
-import { EmailService } from './email.service';
+import { EmailService } from './mail.service';
 import { MailerModule } from '@nestjs-modules/mailer';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getMailConfig } from 'src/config/nodemailer.config';
