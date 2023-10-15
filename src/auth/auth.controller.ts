@@ -50,27 +50,37 @@ export class AuthController {
   @AuthGoogle()
   @Get('google/redirect')
   async googleRedirect(
-    @CurrentUser() user: UserDocument,
+    @CurrentUser() currentUser: UserDocument,
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
-    const {
-      user: { address },
-      ...newObj
-    } = await this.authService.loginSocialNetwork(user);
-    response.cookie('user', newObj).redirect(address);
+    const data = await this.authService.loginSocialNetwork(currentUser);
+    const { address, ...user } = data.user;
+
+    response
+      .cookie('user', {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        user,
+      })
+      .redirect(address);
   }
 
   @AuthFacebook()
   @Get('facebook/redirect')
   async facebookRedirect(
-    @CurrentUser() user: UserDocument,
+    @CurrentUser() currentUser: UserDocument,
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
-    const {
-      user: { address },
-      ...newObj
-    } = await this.authService.loginSocialNetwork(user);
-    response.cookie('user', newObj).redirect(address);
+    const data = await this.authService.loginSocialNetwork(currentUser);
+    const { address, ...user } = data.user;
+
+    response
+      .cookie('user', {
+        accessToken: data.accessToken,
+        refreshToken: data.refreshToken,
+        user,
+      })
+      .redirect(address);
   }
 
   @Patch('forgot/password/:email')
