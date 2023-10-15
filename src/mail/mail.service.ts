@@ -4,7 +4,7 @@ import { MailerService } from '@nestjs-modules/mailer';
 import { ConfigService } from '@nestjs/config';
 
 @Injectable()
-export class EmailService {
+export class MailService {
   constructor(
     private mailerService: MailerService,
     private configService: ConfigService,

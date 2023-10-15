@@ -22,7 +22,12 @@ export class GoogleStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(_, __, profile: Profile, done: VerifiedCallback) {
+  async validate(
+    _,
+    __,
+    profile: Profile,
+    done: VerifiedCallback,
+  ): Promise<void> {
     const email = profile.emails[0].value;
     const user = await this.userService.findUserByEmail(email);
     if (user) done(null, user);

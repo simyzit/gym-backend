@@ -7,6 +7,6 @@ export interface LoginUser {
     surname: string;
     avatarURL: string;
     role: string;
-    address?: string;
+    frontendDomain?: string;
   };
 }

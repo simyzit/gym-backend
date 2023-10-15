@@ -13,6 +13,10 @@ export default (): object => ({
     process.env.NODE_ENV === 'development'
       ? process.env.SERVER_DEV
       : process.env.SERVER_PROD,
+  frontendDomain:
+    process.env.NODE_ENV === 'development'
+      ? process.env.FRONTEND_DOMAIN_DEV
+      : process.env.FRONTEND_DOMAIN_PROD,
   googleClientId: process.env.GOOGLE_CLIENT_ID,
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   facebookClientId: process.env.FACEBOOK_CLIENT_ID,

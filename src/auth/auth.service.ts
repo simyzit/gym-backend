@@ -10,7 +10,7 @@ import {
 import { UserService } from 'src/user/user.service';
 import * as argon2 from 'argon2';
 import * as gravatar from 'gravatar';
-import { EmailService } from 'src/mail/mail.service';
+import { MailService } from 'src/mail/mail.service';
 import { v4 } from 'uuid';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/entities/user.entity';
@@ -20,6 +20,7 @@ import { TokenService } from 'src/token/token.service';
 import { RegisterUser } from './types/interfaces/register.user';
 import { Token } from '../token/types/interfaces/tokens';
 import { LoginUser } from './types/interfaces/login.user';
+import { RegisterDto } from './dto/register.dto';
 
 @Injectable()
 export class AuthService {
@@ -27,13 +28,11 @@ export class AuthService {
     @InjectModel('User')
     private userModel: Model<UserDocument>,
     private userService: UserService,
-    private emailService: EmailService,
+    private mailService: MailService,
     private configService: ConfigService,
     private tokenService: TokenService,
   ) {}
-  async register(
-    body: Pick<User, 'email' | 'password' | 'name'>,
-  ): Promise<RegisterUser> {
+  async register(body: RegisterDto): Promise<RegisterUser> {
     const { email, password, name } = body;
     const findUser = await this.userService.findUserByEmail(email);
 
@@ -44,11 +43,10 @@ export class AuthService {
     const avatarURL = gravatar.url(email, { d: 'mp' });
     const data = await this.userService.createUser(
       body,
-      password,
       verificationToken,
       avatarURL,
     );
-    await this.emailService.sendEmailConfirmation({
+    await this.mailService.sendEmailConfirmation({
       name,
       email,
       verificationToken,
@@ -109,7 +107,7 @@ export class AuthService {
         surname: user.surname,
         avatarURL: user.avatarURL,
         role: user.role,
-        address: this.configService.get('ServerPath'),
+        frontendDomain: this.configService.get('frontendDomain'),
       },
     };
   }
@@ -136,7 +134,7 @@ export class AuthService {
       throw new BadRequestException('Verification has already been passed');
     }
 
-    await this.emailService.sendEmailConfirmation({
+    await this.mailService.sendEmailConfirmation({
       name,
       email,
       verificationToken,
@@ -151,7 +149,7 @@ export class AuthService {
     await this.userModel.findByIdAndUpdate(findUser._id, {
       password: hashPassword,
     });
-    await this.emailService.emailForgotPassword(
+    await this.mailService.emailForgotPassword(
       findUser.email,
       findUser.name,
       newPassword,

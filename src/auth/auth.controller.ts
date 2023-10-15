@@ -54,7 +54,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
     const data = await this.authService.loginSocialNetwork(currentUser);
-    const { address, ...user } = data.user;
+    const { frontendDomain, ...user } = data.user;
 
     response
       .cookie('user', {
@@ -62,7 +62,7 @@ export class AuthController {
         refreshToken: data.refreshToken,
         user,
       })
-      .redirect(address);
+      .redirect(frontendDomain);
   }
 
   @AuthFacebook()
@@ -72,7 +72,7 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
     const data = await this.authService.loginSocialNetwork(currentUser);
-    const { address, ...user } = data.user;
+    const { frontendDomain, ...user } = data.user;
 
     response
       .cookie('user', {
@@ -80,7 +80,7 @@ export class AuthController {
         refreshToken: data.refreshToken,
         user,
       })
-      .redirect(address);
+      .redirect(frontendDomain);
   }
 
   @Patch('forgot/password/:email')
