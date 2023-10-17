@@ -33,7 +33,7 @@ export class AuthService {
     private tokenService: TokenService,
   ) {}
   async register(body: RegisterDto): Promise<RegisterUser> {
-    const { email, password, name } = body;
+    const { email, name } = body;
     const findUser = await this.userService.findUserByEmail(email);
 
     if (findUser) {

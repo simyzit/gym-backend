@@ -4,7 +4,7 @@ import { ValidationPipe } from '@nestjs/common';
 import * as morgan from 'morgan';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { cors: false });
   app.setGlobalPrefix('api');
   process.env.NODE_ENV === 'development' && app.use(morgan('tiny'));
   app.useGlobalPipes(new ValidationPipe());
