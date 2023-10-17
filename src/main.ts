@@ -4,8 +4,9 @@ import { ValidationPipe } from '@nestjs/common';
 import * as morgan from 'morgan';
 
 async function bootstrap(): Promise<void> {
-  const app = await NestFactory.create(AppModule, { cors: false });
+  const app = await NestFactory.create(AppModule);
   app.setGlobalPrefix('api');
+  app.enableCors();
   process.env.NODE_ENV === 'development' && app.use(morgan('tiny'));
   app.useGlobalPipes(new ValidationPipe());
   await app.listen(4000, () =>
