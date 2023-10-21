@@ -54,15 +54,10 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
     const data = await this.authService.loginSocialNetwork(currentUser);
-    const { frontendDomain, ...user } = data.user;
 
-    response
-      .cookie('user', {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        user,
-      })
-      .redirect('http://localhost:3000');
+    response.redirect(
+      `http://localhost:3000/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
+    );
   }
 
   @AuthFacebook()
@@ -72,15 +67,10 @@ export class AuthController {
     @Res({ passthrough: true }) response: Response,
   ): Promise<void> {
     const data = await this.authService.loginSocialNetwork(currentUser);
-    const { frontendDomain, ...user } = data.user;
 
-    response
-      .cookie('user', {
-        accessToken: data.accessToken,
-        refreshToken: data.refreshToken,
-        user,
-      })
-      .redirect('http://localhost:3000');
+    response.redirect(
+      `http://localhost:3000/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
+    );
   }
 
   @Patch('forgot/password/:email')
