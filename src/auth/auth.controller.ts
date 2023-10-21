@@ -62,7 +62,7 @@ export class AuthController {
         refreshToken: data.refreshToken,
         user,
       })
-      .redirect(frontendDomain);
+      .redirect('http://localhost:3000');
   }
 
   @AuthFacebook()
@@ -80,7 +80,7 @@ export class AuthController {
         refreshToken: data.refreshToken,
         user,
       })
-      .redirect(frontendDomain);
+      .redirect('http://localhost:3000');
   }
 
   @Patch('forgot/password/:email')
