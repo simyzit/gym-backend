@@ -3,12 +3,17 @@ import { PackageService } from './package.service';
 import { PackageController } from './package.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PackageSchema } from './entities/package.entity';
+import { OrdersService } from 'src/orders/orders.service';
+import { OrderSchema } from 'src/orders/entities/order.entity';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: 'Package', schema: PackageSchema }]),
+    MongooseModule.forFeature([
+      { name: 'Package', schema: PackageSchema },
+      { name: 'Order', schema: OrderSchema },
+    ]),
   ],
   controllers: [PackageController],
-  providers: [PackageService],
+  providers: [PackageService, OrdersService],
 })
 export class PackageModule {}
