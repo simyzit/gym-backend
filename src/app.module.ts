@@ -7,6 +7,8 @@ import { UserModule } from './user/user.module';
 import { EmailModule } from './mail/mail.module';
 import { MongooseModule } from '@nestjs/mongoose';
 import { TokenModule } from './token/token.module';
+import { PackageModule } from './package/package.module';
+import { OrdersModule } from './orders/orders.module';
 
 @Module({
   imports: [
@@ -19,6 +21,8 @@ import { TokenModule } from './token/token.module';
     UserModule,
     EmailModule,
     TokenModule,
+    PackageModule,
+    OrdersModule,
   ],
   providers: [],
 })
