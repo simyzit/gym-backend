@@ -56,7 +56,7 @@ export class AuthController {
     const data = await this.authService.loginSocialNetwork(currentUser);
 
     response.redirect(
-      `https://simyzit.github.io/gym-frontend/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
+      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
     );
   }
 
@@ -69,7 +69,7 @@ export class AuthController {
     const data = await this.authService.loginSocialNetwork(currentUser);
 
     response.redirect(
-      `http://localhost:3000/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
+      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
     );
   }
 
