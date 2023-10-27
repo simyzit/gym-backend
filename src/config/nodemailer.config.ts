@@ -7,12 +7,13 @@ export const getMailConfig = async (
   configService: ConfigService,
 ): Promise<MailerOptions> => ({
   transport: {
-    service: 'gmail',
+    host: 'sandbox.smtp.mailtrap.io',
     auth: {
-      user: configService.get('mailUser'),
-      pass: configService.get('mailPass'),
+      user: '8ab2b3e10e0871',
+      pass: '253ecba9204742',
     },
   },
+
   defaults: {
     from: `Application Gym <${configService.get('mailFrom')}>`,
   },
@@ -26,22 +27,3 @@ export const getMailConfig = async (
 });
 
 // console.log((Math.floor(Math.random() * 9000000) + 1000000).toString());
-
-//For prod
-// transport: {
-//   service: 'gmail',
-//   auth: {
-//     user: configService.get('mailUser'),
-//     pass: configService.get('mailPass'),
-//   },
-// },
-
-//For test
-
-// transport: {
-//   host: 'sandbox.smtp.mailtrap.io',
-//   auth: {
-//     user: '8ab2b3e10e0871',
-//     pass: '253ecba9204742',
-//   },
-// },
