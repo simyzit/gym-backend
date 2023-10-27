@@ -1,11 +1,13 @@
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { IsNotEmpty, IsString, Matches, NotContains } from 'class-validator';
+
+import regexpUser from '../../user/regexp';
 
 export class VerifyDto {
   @IsNotEmpty()
   @IsString()
-  @Matches(
-    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    { message: 'email must be in email format' },
-  )
+  @NotContains(' ', {
+    message: 'email should not contain a spaces',
+  })
+  @Matches(regexpUser.emailRegexp, { message: 'email must be in email format' })
   email: string;
 }

@@ -2,8 +2,8 @@ import { Controller, Get, Param, Post } from '@nestjs/common';
 import { PackageService } from './package.service';
 import { GetAllPackages } from './types/interfaces/getAllPackages';
 import { Message } from 'src/auth/types/interfaces/message';
-import { Auth } from 'src/auth/guards/jwt.guard';
-import { CurrentUser } from 'src/user/decorators/user.decorator';
+import { Auth } from '../auth/guards/jwt.guard';
+import { CurrentUser } from '../user/decorators/user.decorator';
 import { UserDocument } from 'src/user/entities/user.entity';
 import { ObjectId } from 'mongodb';
 

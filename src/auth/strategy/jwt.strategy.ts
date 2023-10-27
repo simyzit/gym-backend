@@ -7,7 +7,7 @@ import { User, UserDocument } from 'src/user/entities/user.entity';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../../user/user.service';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {

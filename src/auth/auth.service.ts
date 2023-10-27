@@ -7,16 +7,16 @@ import {
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UserService } from 'src/user/user.service';
+import { UserService } from '../user/user.service';
 import * as argon2 from 'argon2';
 import * as gravatar from 'gravatar';
-import { MailService } from 'src/mail/mail.service';
+import { MailService } from '../mail/mail.service';
 import { v4 } from 'uuid';
 import { Model } from 'mongoose';
 import { User, UserDocument } from 'src/user/entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
-import { TokenService } from 'src/token/token.service';
+import { TokenService } from '../token/token.service';
 import { RegisterUser } from './types/interfaces/register.user';
 import { Token } from '../token/types/interfaces/tokens';
 import { LoginUser } from './types/interfaces/login.user';

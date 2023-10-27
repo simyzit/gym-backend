@@ -7,6 +7,8 @@ import {
   Res,
   Param,
   Patch,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -18,7 +20,7 @@ import { RefreshDto } from './dto/refresh.dto';
 import { AuthGoogle } from './guards/google.guard';
 import { Response } from 'express';
 import { AuthFacebook } from './guards/facebook.guard';
-import { VerifyDto } from 'src/auth/dto/verify.dto';
+import { VerifyDto } from './dto/verify.dto';
 import { RegisterUser } from './types/interfaces/register.user';
 import { Message } from './types/interfaces/message';
 import { Token } from '../token/types/interfaces/tokens';
@@ -28,12 +30,14 @@ import { LoginUser } from './types/interfaces/login.user';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
+  @UsePipes(new ValidationPipe())
   @Post('register')
   @HttpCode(201)
   async register(@Body() body: RegisterDto): Promise<RegisterUser> {
     return await this.authService.register(body);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('login')
   async login(@Body() body: LoginDto): Promise<LoginUser> {
     return await this.authService.login(body);
@@ -87,6 +91,7 @@ export class AuthController {
     return { message: 'Verification successful' };
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('verify')
   async verifyAgain(@Body() body: VerifyDto): Promise<Message> {
     const { email } = body;
@@ -103,6 +108,7 @@ export class AuthController {
     await this.authService.logout(_id);
   }
 
+  @UsePipes(new ValidationPipe())
   @Post('refresh')
   @HttpCode(200)
   async refreshToken(@Body() body: RefreshDto): Promise<Token> {

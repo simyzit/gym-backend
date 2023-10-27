@@ -1,27 +1,37 @@
-import { IsNotEmpty, IsString, Matches, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsString,
+  Matches,
+  MinLength,
+  NotContains,
+} from 'class-validator';
+
+import regexpUser from '../../user/regexp';
 
 export class RegisterDto {
   @IsNotEmpty()
+  @NotContains(' ', { message: 'name should not contain a spaces' })
   @IsString()
-  @Matches(/^[a-zA-Z]/, { message: 'name must be in name format' })
+  @Matches(regexpUser.nameRegexp)
   name: string;
 
   @IsNotEmpty()
   @IsString()
-  @Matches(/^[a-zA-Z]/, { message: 'surname must be surname format' })
+  @NotContains(' ', { message: 'surname should not contain a spaces' })
+  @Matches(regexpUser.surnameRegexp, {
+    message: 'surname must be surname format',
+  })
   surname: string;
 
   @IsNotEmpty()
   @IsString()
-  @Matches(
-    /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/,
-    { message: 'email must be in email format' },
-  )
+  @NotContains(' ', { message: 'email should not contain a spaces' })
+  @Matches(regexpUser.emailRegexp, { message: 'email must be in email format' })
   email: string;
 
   @IsNotEmpty()
   @IsString()
-  @MinLength(5, { message: 'Phone must contain at least 5 numbers' })
+  @MinLength(5)
   phone: string;
 
   @IsNotEmpty()

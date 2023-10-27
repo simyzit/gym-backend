@@ -1,6 +1,7 @@
 export default (): object => ({
   port: process.env.PORT,
   mongoUrl: process.env.MONGO_URL,
+  mongoUrlTest: process.env.MONGO_URL_TEST,
   accessSecretKey: process.env.ACCESS_SECRET_KEY,
   accessTokenExpires: process.env.ACCESS_TOKEN_EXPIRES,
   refreshSecretKey: process.env.REFRESH_SECRET_KEY,

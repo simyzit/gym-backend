@@ -8,44 +8,50 @@ import { Role } from '../types/enum/role';
 
 export type UserDocument = HydratedDocument<User>;
 
+import regexpUser from '../regexp';
+
 @Schema({ versionKey: false, timestamps: true })
 export class User {
-  @Prop({ required: true })
+  @Prop({ type: String, required: true, match: regexpUser.nameRegexp })
   name: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true, match: regexpUser.surnameRegexp })
   surname: string;
 
   @Prop({
+    type: String,
     required: true,
     unique: true,
+    match: regexpUser.emailRegexp,
   })
   email: string;
 
   @Prop({
+    type: String,
     default: null,
+    minlength: 5,
   })
   phone: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true, minlength: 8 })
   password: string;
 
-  @Prop({ required: true })
+  @Prop({ type: String, required: true })
   avatarURL: string;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   accessToken: string;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   refreshToken: string;
 
-  @Prop({ default: false })
+  @Prop({ type: Boolean, default: false })
   verify: boolean;
 
-  @Prop({ default: null })
+  @Prop({ type: String, default: null })
   verificationToken: string;
 
-  @Prop({ enum: Role, default: Role.USER })
+  @Prop({ type: String, enum: Role, default: Role.USER })
   role: string;
 }
 

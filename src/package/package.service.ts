@@ -8,7 +8,7 @@ import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
 import { PackageDocument } from './entities/package.entity';
 import { GetAllPackages } from './types/interfaces/getAllPackages';
-import { OrdersService } from 'src/orders/orders.service';
+import { OrdersService } from '../orders/orders.service';
 
 @Injectable()
 export class PackageService {

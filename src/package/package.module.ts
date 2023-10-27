@@ -3,8 +3,8 @@ import { PackageService } from './package.service';
 import { PackageController } from './package.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { PackageSchema } from './entities/package.entity';
-import { OrdersService } from 'src/orders/orders.service';
-import { OrderSchema } from 'src/orders/entities/order.entity';
+import { OrdersService } from '../orders/orders.service';
+import { OrderSchema } from '../orders/entities/order.entity';
 
 @Module({
   imports: [

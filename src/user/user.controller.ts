@@ -1,6 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { UserService } from './user.service';
-import { Auth } from 'src/auth/guards/jwt.guard';
+import { Auth } from '../auth/guards/jwt.guard';
 import { CurrentUser } from './decorators/user.decorator';
 import { UserDocument } from './entities/user.entity';
 import { Current } from './types/interfaces/current.user';
