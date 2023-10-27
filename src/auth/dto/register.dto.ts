@@ -12,7 +12,7 @@ export class RegisterDto {
   @IsNotEmpty()
   @NotContains(' ', { message: 'name should not contain a spaces' })
   @IsString()
-  @Matches(regexpUser.nameRegexp)
+  @Matches(regexpUser.nameRegexp, { message: 'name must be in name format' })
   name: string;
 
   @IsNotEmpty()
