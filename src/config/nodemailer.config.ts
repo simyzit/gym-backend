@@ -7,10 +7,10 @@ export const getMailConfig = async (
   configService: ConfigService,
 ): Promise<MailerOptions> => ({
   transport: {
-    host: 'sandbox.smtp.mailtrap.io',
+    service: 'gmail',
     auth: {
-      user: '8ab2b3e10e0871',
-      pass: '253ecba9204742',
+      user: `${configService.get('mailUser')}`,
+      pass: `${configService.get('mailPass')}`,
     },
   },
 
@@ -27,3 +27,12 @@ export const getMailConfig = async (
 });
 
 // console.log((Math.floor(Math.random() * 9000000) + 1000000).toString());
+
+// var transport = nodemailer.createTransport({
+//   host: 'sandbox.smtp.mailtrap.io',
+//   port: 2525,
+//   auth: {
+//     user: '8ab2b3e10e0871',
+//     pass: '253ecba9204742',
+//   },
+// });
