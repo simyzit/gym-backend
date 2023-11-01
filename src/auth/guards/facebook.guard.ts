@@ -1,4 +1,5 @@
-import { UseGuards } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-export const AuthFacebook = () => UseGuards(AuthGuard('facebook'));
+@Injectable()
+export class FacebookAuthGuard extends AuthGuard('facebook') {}

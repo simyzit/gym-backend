@@ -9,17 +9,18 @@ import {
   Patch,
   UsePipes,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
-import { Auth } from './guards/jwt.guard';
+import { JwtAuthGuard } from './guards/jwt.guard';
 import { CurrentUser } from '../user/decorators/user.decorator';
 import { UserDocument } from 'src/user/entities/user.entity';
 import { RefreshDto } from './dto/refresh.dto';
-import { AuthGoogle } from './guards/google.guard';
+import { GoogleAuthGuard } from './guards/google.guard';
 import { Response } from 'express';
-import { AuthFacebook } from './guards/facebook.guard';
+import { FacebookAuthGuard } from './guards/facebook.guard';
 import { VerifyDto } from './dto/verify.dto';
 import { RegisterUser } from './types/interfaces/register.user';
 import { Message } from './types/interfaces/message';
@@ -43,15 +44,15 @@ export class AuthController {
     return await this.authService.login(body);
   }
 
-  @AuthGoogle()
+  @UseGuards(GoogleAuthGuard)
   @Get('google/login')
   googleLogin(): void {}
 
-  @AuthFacebook()
+  @UseGuards(FacebookAuthGuard)
   @Get('facebook/login')
   facebookLogin(): void {}
 
-  @AuthGoogle()
+  @UseGuards(GoogleAuthGuard)
   @Get('google/redirect')
   async googleRedirect(
     @CurrentUser() currentUser: UserDocument,
@@ -64,7 +65,7 @@ export class AuthController {
     );
   }
 
-  @AuthFacebook()
+  @UseGuards(FacebookAuthGuard)
   @Get('facebook/redirect')
   async facebookRedirect(
     @CurrentUser() currentUser: UserDocument,
@@ -85,10 +86,11 @@ export class AuthController {
 
   @Get('verify/email/:verificationToken')
   async verifyEmail(
+    @Res() response: Response,
     @Param('verificationToken') verificationToken: string,
-  ): Promise<Message> {
+  ): Promise<void> {
     await this.authService.verifyEmail(verificationToken);
-    return { message: 'Verification successful' };
+    response.redirect(`${process.env.FRONTEND_DOMAIN_PROD}/success`);
   }
 
   @UsePipes(new ValidationPipe())
@@ -99,9 +101,9 @@ export class AuthController {
     return { message: 'Verification email sent' };
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('logout')
   @HttpCode(204)
-  @Auth()
   async logout(
     @CurrentUser('_id') _id: Pick<UserDocument, '_id'>,
   ): Promise<void> {

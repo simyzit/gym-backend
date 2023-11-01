@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { UserDocument } from './entities/user.entity';
+import { User, UserDocument } from './entities/user.entity';
 import { Profile } from 'passport';
 import { v4 } from 'uuid';
 import { RegisterUser } from 'src/auth/types/interfaces/register.user';
@@ -34,6 +34,12 @@ export class UserService {
       password,
       verify: true,
     });
+  }
+
+  async getUsers(): Promise<User[]> {
+    return await this.userModel
+      .find({})
+      .select('_id name surname email phone avatarURL role');
   }
 
   async findUserByToken(refreshToken: string): Promise<UserDocument | null> {

@@ -1,8 +1,8 @@
-import { Controller, Get, Param, Post } from '@nestjs/common';
+import { Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { PackageService } from './package.service';
 import { GetAllPackages } from './types/interfaces/getAllPackages';
 import { Message } from 'src/auth/types/interfaces/message';
-import { Auth } from '../auth/guards/jwt.guard';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../user/decorators/user.decorator';
 import { UserDocument } from 'src/user/entities/user.entity';
 import { ObjectId } from 'mongodb';
@@ -16,7 +16,7 @@ export class PackageController {
     return await this.packageService.getAllPackages();
   }
 
-  @Auth()
+  @UseGuards(JwtAuthGuard)
   @Post('/:id')
   async createPackage(
     @Param('id') id: string,
@@ -26,7 +26,7 @@ export class PackageController {
     return { message: 'Package added successfully' };
   }
 
-  @Auth()
+  @UseGuards(JwtAuthGuard)
   @Get('/')
   async getPackages(@CurrentUser('_id') _id: ObjectId): Promise<object> {
     return await this.packageService.getPackages(_id);

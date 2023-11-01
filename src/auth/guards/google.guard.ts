@@ -1,4 +1,5 @@
-import { UseGuards } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
-export const AuthGoogle = () => UseGuards(AuthGuard('google'));
+@Injectable()
+export class GoogleAuthGuard extends AuthGuard('google') {}
