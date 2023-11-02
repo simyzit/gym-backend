@@ -6,9 +6,10 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
-import { PackageDocument } from './entities/package.entity';
+import { Package, PackageDocument } from './entities/package.entity';
 import { GetAllPackages } from './types/interfaces/getAllPackages';
 import { OrdersService } from '../orders/orders.service';
+import { PackageDto } from './dto/package.dto';
 
 @Injectable()
 export class PackageService {
@@ -31,5 +32,22 @@ export class PackageService {
 
   async getPackages(userId: ObjectId): Promise<object> {
     return await this.orderService.getPackagesByOrders(userId);
+  }
+
+  async deletePackage(id: string): Promise<void> {
+    const validId = ObjectId.isValid(id);
+    if (!validId) throw new BadRequestException('invalid Id');
+    const findPackage = await this.packageModel.findById(id);
+    if (!findPackage) throw new NotFoundException('Package not found');
+    await this.packageModel.findByIdAndRemove(id);
+  }
+
+  async updatePackage(id: string, body: PackageDto): Promise<Package> {
+    const validId = ObjectId.isValid(id);
+    if (!validId) throw new BadRequestException('invalid Id');
+    const findPackage = await this.packageModel.findById(id);
+    if (!findPackage) throw new NotFoundException('Package not found');
+
+    return await this.packageModel.findByIdAndUpdate(id, body, { new: true });
   }
 }
