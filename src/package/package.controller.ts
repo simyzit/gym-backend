@@ -20,6 +20,8 @@ import { ObjectId } from 'mongodb';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { PackageDto } from './dto/package.dto';
+import { validationOption } from 'src/helpers/validationOptions';
+import { Package } from './entities/package.entity';
 
 @Controller('package')
 export class PackageController {
@@ -38,11 +40,11 @@ export class PackageController {
 
   @UseGuards(JwtAuthGuard)
   @Post('/:id')
-  async createPackage(
+  async buyPackage(
     @Param('id') id: string,
     @CurrentUser() user: UserDocument,
   ): Promise<Message> {
-    await this.packageService.createPackage(user._id, id);
+    await this.packageService.buyPackage(user._id, id);
     return { message: 'Package added successfully' };
   }
 
@@ -55,13 +57,13 @@ export class PackageController {
   }
 
   @Roles('admin')
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new ValidationPipe(validationOption))
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Patch('/:id')
   async updatePackage(
     @Param('id') id: string,
     @Body() body: PackageDto,
-  ): Promise<object> {
+  ): Promise<Package> {
     return await this.packageService.updatePackage(id, body);
   }
 }

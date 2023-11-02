@@ -1,8 +1,4 @@
-import {
-  BadRequestException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { ObjectId } from 'mongodb';
@@ -22,10 +18,8 @@ export class PackageService {
     return this.packageModel.find({}).select('-createdAt -updatedAt');
   }
 
-  async createPackage(userId: ObjectId, packageId: string): Promise<void> {
-    const validId = ObjectId.isValid(packageId);
-    if (!validId) throw new BadRequestException('invalid Id');
-    const findPackage = await this.packageModel.findById(packageId);
+  async buyPackage(userId: ObjectId, packageId: string): Promise<void> {
+    const findPackage = await this.findPackageById(packageId);
     if (!findPackage) throw new NotFoundException('Package not found');
     await this.orderService.createOrder(userId, findPackage._id);
   }
@@ -35,19 +29,19 @@ export class PackageService {
   }
 
   async deletePackage(id: string): Promise<void> {
-    const validId = ObjectId.isValid(id);
-    if (!validId) throw new BadRequestException('invalid Id');
-    const findPackage = await this.packageModel.findById(id);
+    const findPackage = await this.findPackageById(id);
     if (!findPackage) throw new NotFoundException('Package not found');
     await this.packageModel.findByIdAndRemove(id);
   }
 
   async updatePackage(id: string, body: PackageDto): Promise<Package> {
-    const validId = ObjectId.isValid(id);
-    if (!validId) throw new BadRequestException('invalid Id');
-    const findPackage = await this.packageModel.findById(id);
+    const findPackage = await this.findPackageById(id);
     if (!findPackage) throw new NotFoundException('Package not found');
 
     return await this.packageModel.findByIdAndUpdate(id, body, { new: true });
+  }
+
+  async findPackageById(id: string): Promise<PackageDocument | null> {
+    return this.packageModel.findById(id);
   }
 }

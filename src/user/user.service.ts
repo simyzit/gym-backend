@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
@@ -6,6 +6,7 @@ import { Profile } from 'passport';
 import { v4 } from 'uuid';
 import { RegisterUser } from 'src/auth/types/interfaces/register.user';
 import { RegisterDto } from 'src/auth/dto/register.dto';
+import { RoleDto } from './dto/role.dto';
 
 @Injectable()
 export class UserService {
@@ -42,6 +43,18 @@ export class UserService {
       .select('_id name surname email phone avatarURL role');
   }
 
+  async updateUserRole(id: string, body: RoleDto): Promise<User> {
+    const findUser = await this.findUserById(id);
+    if (!findUser) throw new NotFoundException('User not found');
+    return await this.userModel
+      .findByIdAndUpdate(id, { role: body.role }, { new: true })
+      .select('_id name surname email phone avatarURL role');
+  }
+
+  async deleteUser(id: string): Promise<void> {
+    await this.userModel.findByIdAndRemove(id);
+  }
+
   async findUserByToken(refreshToken: string): Promise<UserDocument | null> {
     return await this.userModel.findOne({ refreshToken });
   }
@@ -50,9 +63,7 @@ export class UserService {
     return await this.userModel.findOne({ email });
   }
 
-  async findUserById(
-    id: Pick<UserDocument, '_id'>,
-  ): Promise<UserDocument | null> {
+  async findUserById(id: string): Promise<UserDocument | null> {
     return await this.userModel.findById(id);
   }
 }

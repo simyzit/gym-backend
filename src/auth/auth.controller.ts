@@ -26,19 +26,20 @@ import { RegisterUser } from './types/interfaces/register.user';
 import { Message } from './types/interfaces/message';
 import { Token } from '../token/types/interfaces/tokens';
 import { LoginUser } from './types/interfaces/login.user';
+import { validationOption } from 'src/helpers/validationOptions';
 
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new ValidationPipe(validationOption))
   @Post('register')
   @HttpCode(201)
   async register(@Body() body: RegisterDto): Promise<RegisterUser> {
     return await this.authService.register(body);
   }
 
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new ValidationPipe(validationOption))
   @Post('login')
   async login(@Body() body: LoginDto): Promise<LoginUser> {
     return await this.authService.login(body);
@@ -93,7 +94,7 @@ export class AuthController {
     response.redirect(`${process.env.FRONTEND_DOMAIN_PROD}/success`);
   }
 
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new ValidationPipe(validationOption))
   @Post('verify')
   async verifyAgain(@Body() body: VerifyDto): Promise<Message> {
     const { email } = body;
@@ -110,7 +111,7 @@ export class AuthController {
     await this.authService.logout(_id);
   }
 
-  @UsePipes(new ValidationPipe())
+  @UsePipes(new ValidationPipe(validationOption))
   @Post('refresh')
   @HttpCode(200)
   async refreshToken(@Body() body: RefreshDto): Promise<Token> {
