@@ -27,8 +27,8 @@ export class UserController {
   @Roles('admin')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/')
-  async getUsers(): Promise<User[]> {
-    return await this.userService.getUsers();
+  async getUsers(@CurrentUser('_id') _id: string): Promise<User[]> {
+    return await this.userService.getUsers(_id);
   }
 
   @Roles('admin')

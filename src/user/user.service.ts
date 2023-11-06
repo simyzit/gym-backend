@@ -37,9 +37,9 @@ export class UserService {
     });
   }
 
-  async getUsers(): Promise<User[]> {
+  async getUsers(_id: string): Promise<User[]> {
     return await this.userModel
-      .find({})
+      .find({ _id: { $ne: _id } })
       .select('_id name surname email phone avatarURL role');
   }
 
