@@ -35,10 +35,12 @@ export class PackageService {
   }
 
   async updatePackage(id: string, body: PackageDto): Promise<Package> {
-    const findPackage = await this.findPackageById(id);
+    const findPackage = await this.packageModel.findByIdAndUpdate(id, body, {
+      new: true,
+    });
     if (!findPackage) throw new NotFoundException('Package not found');
 
-    return await this.packageModel.findByIdAndUpdate(id, body, { new: true });
+    return findPackage;
   }
 
   async findPackageById(id: string): Promise<PackageDocument | null> {

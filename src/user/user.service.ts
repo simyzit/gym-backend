@@ -44,11 +44,11 @@ export class UserService {
   }
 
   async updateUserRole(id: string, body: RoleDto): Promise<User> {
-    const findUser = await this.findUserById(id);
-    if (!findUser) throw new NotFoundException('User not found');
-    return await this.userModel
+    const findUser = await this.userModel
       .findByIdAndUpdate(id, { role: body.role }, { new: true })
       .select('_id name surname email phone avatarURL role');
+    if (!findUser) throw new NotFoundException('User not found');
+    return findUser;
   }
 
   async deleteUser(id: string): Promise<User> {
