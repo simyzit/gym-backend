@@ -51,9 +51,8 @@ export class PackageController {
   @Roles('admin')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/:id')
-  async deletePackage(@Param('id') id: string): Promise<Message> {
-    await this.packageService.deletePackage(id);
-    return { message: 'Package deleted' };
+  async deletePackage(@Param('id') id: string): Promise<Package> {
+    return await this.packageService.deletePackage(id);
   }
 
   @Roles('admin')

@@ -28,10 +28,10 @@ export class PackageService {
     return await this.orderService.getPackagesByOrders(userId);
   }
 
-  async deletePackage(id: string): Promise<void> {
-    const findPackage = await this.findPackageById(id);
-    if (!findPackage) throw new NotFoundException('Package not found');
-    await this.packageModel.findByIdAndRemove(id);
+  async deletePackage(id: string): Promise<Package> {
+    const data = await this.packageModel.findByIdAndRemove(id).select('_id');
+    if (!data) throw new NotFoundException('Package not found!');
+    return data;
   }
 
   async updatePackage(id: string, body: PackageDto): Promise<Package> {
