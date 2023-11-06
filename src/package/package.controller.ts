@@ -22,6 +22,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { PackageDto } from './dto/package.dto';
 import { validationOption } from 'src/helpers/validationOptions';
 import { Package } from './entities/package.entity';
+import { AddPackageDto } from './dto/addPackageDto';
 
 @Controller('package')
 export class PackageController {
@@ -32,13 +33,22 @@ export class PackageController {
     return await this.packageService.getAllPackages();
   }
 
+  @Roles('admin', 'manager')
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @UsePipes(new ValidationPipe(validationOption))
+  @Post('/add')
+  async addPackage(@Body() body: AddPackageDto): Promise<Package> {
+    return await this.packageService.addPackage(body);
+  }
+
   @UseGuards(JwtAuthGuard)
   @Get('/')
   async getPackages(@CurrentUser('_id') _id: ObjectId): Promise<object> {
     return await this.packageService.getPackages(_id);
   }
 
-  @UseGuards(JwtAuthGuard)
+  @Roles('user')
+  @UseGuards(JwtAuthGuard, RoleGuard)
   @Post('/:id')
   async buyPackage(
     @Param('id') id: string,
@@ -48,14 +58,14 @@ export class PackageController {
     return { message: 'Package added successfully' };
   }
 
-  @Roles('admin')
+  @Roles('admin', 'manager')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/:id')
   async deletePackage(@Param('id') id: string): Promise<Package> {
     return await this.packageService.deletePackage(id);
   }
 
-  @Roles('admin')
+  @Roles('admin', 'manager')
   @UsePipes(new ValidationPipe(validationOption))
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Patch('/:id')

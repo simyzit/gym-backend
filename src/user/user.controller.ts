@@ -19,10 +19,21 @@ import { RoleGuard } from 'src/auth/guards/role.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RoleDto } from './dto/role.dto';
 import { validationOption } from 'src/helpers/validationOptions';
+import { UpdateProfileDto } from './dto/updateProfile.dto';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @UsePipes(new ValidationPipe(validationOption))
+  async updateUserProfile(
+    @CurrentUser('_id') _id: string,
+    @Body() body: UpdateProfileDto,
+  ): Promise<User> {
+    return await this.userService.updateUserProfile(_id, body);
+  }
 
   @Roles('admin')
   @UseGuards(JwtAuthGuard, RoleGuard)
