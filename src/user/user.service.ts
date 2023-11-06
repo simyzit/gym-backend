@@ -51,8 +51,10 @@ export class UserService {
       .select('_id name surname email phone avatarURL role');
   }
 
-  async deleteUser(id: string): Promise<void> {
-    await this.userModel.findByIdAndRemove(id);
+  async deleteUser(id: string): Promise<User> {
+    const user = await this.userModel.findByIdAndRemove(id).select('_id');
+    if (!user) throw new NotFoundException('User not found!');
+    return user;
   }
 
   async findUserByToken(refreshToken: string): Promise<UserDocument | null> {

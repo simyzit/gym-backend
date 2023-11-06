@@ -19,7 +19,6 @@ import { RoleGuard } from 'src/auth/guards/role.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RoleDto } from './dto/role.dto';
 import { validationOption } from 'src/helpers/validationOptions';
-import { Message } from 'src/auth/types/interfaces/message';
 
 @Controller('user')
 export class UserController {
@@ -46,9 +45,8 @@ export class UserController {
   @Roles('admin')
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/:id')
-  async deleteUser(@Param('id') id: string): Promise<Message> {
-    await this.userService.deleteUser(id);
-    return { message: 'User deleted' };
+  async deleteUser(@Param('id') id: string): Promise<User> {
+    return await this.userService.deleteUser(id);
   }
 
   @UseGuards(JwtAuthGuard)
