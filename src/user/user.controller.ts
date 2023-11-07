@@ -2,10 +2,15 @@ import {
   Body,
   Controller,
   Delete,
+  FileTypeValidator,
   Get,
+  MaxFileSizeValidator,
   Param,
+  ParseFilePipe,
   Patch,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -20,6 +25,7 @@ import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { RoleDto } from './dto/role.dto';
 import { validationOption } from 'src/helpers/validationOptions';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
+import { FileInterceptor } from '@nestjs/platform-express';
 
 @Controller('user')
 export class UserController {
@@ -40,6 +46,24 @@ export class UserController {
   @Get('/')
   async getUsers(@CurrentUser('_id') _id: string): Promise<User[]> {
     return await this.userService.getUsers(_id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Patch('/avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateAvatar(
+    @CurrentUser('_id') _id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [
+          new MaxFileSizeValidator({ maxSize: 3000000 }),
+          new FileTypeValidator({ fileType: 'image/jpeg' }),
+        ],
+      }),
+    )
+    file: Express.Multer.File,
+  ): Promise<object> {
+    return await this.userService.updateAvatar(_id, file);
   }
 
   @Roles('admin')
@@ -72,3 +96,5 @@ export class UserController {
     };
   }
 }
+
+//

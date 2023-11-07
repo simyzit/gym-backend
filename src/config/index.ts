@@ -22,4 +22,7 @@ export default (): object => ({
   googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
   facebookClientId: process.env.FACEBOOK_CLIENT_ID,
   facebookClientSecret: process.env.FACEBOOK_CLIENT_SECRET,
+  cloudinaryName: process.env.CLOUD_NAME,
+  cloudinaryApiKey: process.env.API_KEY,
+  cloudinaryApiSecret: process.env.API_SECRET,
 });

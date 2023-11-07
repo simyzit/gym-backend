@@ -9,6 +9,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TokenModule } from './token/token.module';
 import { PackageModule } from './package/package.module';
 import { OrdersModule } from './orders/orders.module';
+import { NestCloudinaryClientModule } from './cloudinary/cloudinary.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { OrdersModule } from './orders/orders.module';
     TokenModule,
     PackageModule,
     OrdersModule,
+    NestCloudinaryClientModule,
   ],
   providers: [],
 })

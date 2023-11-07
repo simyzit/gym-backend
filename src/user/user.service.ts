@@ -13,10 +13,14 @@ import { RegisterDto } from 'src/auth/dto/register.dto';
 import { RoleDto } from './dto/role.dto';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { validateIdMongo } from 'src/helpers/validateIdMongo';
+import { CloudinaryService } from 'nestjs-cloudinary';
 
 @Injectable()
 export class UserService {
-  constructor(@InjectModel('User') private userModel: Model<UserDocument>) {}
+  constructor(
+    @InjectModel('User') private userModel: Model<UserDocument>,
+    private cloudinaryService: CloudinaryService,
+  ) {}
 
   async createUser(
     body: RegisterDto,
@@ -73,6 +77,14 @@ export class UserService {
     return this.userModel
       .findByIdAndUpdate(id, body, { new: true })
       .select('name surname email phone');
+  }
+
+  async updateAvatar(id: string, file: Express.Multer.File): Promise<object> {
+    const avatar = await this.cloudinaryService.uploadFile(file, {
+      folder: 'avatars',
+    });
+    await this.userModel.findByIdAndUpdate(id, { avatarURL: avatar.url });
+    return { avatarURL: avatar.url };
   }
 
   async findUserByToken(refreshToken: string): Promise<UserDocument | null> {
