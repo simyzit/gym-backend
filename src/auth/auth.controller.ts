@@ -62,7 +62,7 @@ export class AuthController {
     const data = await this.authService.loginSocialNetwork(currentUser);
 
     response.redirect(
-      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
+      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}&days=${data.user.days}`,
     );
   }
 

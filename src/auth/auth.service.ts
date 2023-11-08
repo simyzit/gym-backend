@@ -2,7 +2,6 @@
 import {
   BadRequestException,
   ConflictException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -83,6 +82,7 @@ export class AuthService {
         surname: findUser.surname,
         avatarURL: findUser.avatarURL,
         role: findUser.role,
+        days: findUser.days,
       },
     };
   }
@@ -107,7 +107,7 @@ export class AuthService {
         surname: user.surname,
         avatarURL: user.avatarURL,
         role: user.role,
-        frontendDomain: this.configService.get('frontendDomain'),
+        days: user.days,
       },
     };
   }

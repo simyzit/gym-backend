@@ -18,14 +18,14 @@ import { UserService } from './user.service';
 import { CurrentUser } from './decorators/user.decorator';
 import { User } from './entities/user.entity';
 import { Current } from './types/interfaces/current.user';
-
+import { Role } from './types/enum/role';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
-import { RoleDto } from './dto/role.dto';
 import { validationOption } from 'src/helpers/validationOptions';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Controller('user')
 export class UserController {
@@ -41,7 +41,7 @@ export class UserController {
     return await this.userService.updateUserProfile(_id, body);
   }
 
-  @Roles('admin')
+  @Roles(Role.ADMIN, Role.MANAGER)
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Get('/')
   async getUsers(@CurrentUser('_id') _id: string): Promise<User[]> {
@@ -66,18 +66,18 @@ export class UserController {
     return await this.userService.updateAvatar(_id, file);
   }
 
-  @Roles('admin')
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RoleGuard)
   @UsePipes(new ValidationPipe(validationOption))
-  @Patch('/:id/role')
-  async updateUserRole(
+  @Patch('/:id')
+  async updateUser(
     @Param('id') id: string,
-    @Body() body: RoleDto,
+    @Body() body: UpdateUserDto,
   ): Promise<User> {
-    return await this.userService.updateUserRole(id, body);
+    return await this.userService.updateUser(id, body);
   }
 
-  @Roles('admin')
+  @Roles(Role.ADMIN)
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/:id')
   async deleteUser(@Param('id') id: string): Promise<User> {
@@ -91,10 +91,9 @@ export class UserController {
       email: user.email,
       name: user.name,
       surname: user.surname,
+      phone: user.phone,
       avatarURL: user.avatarURL,
       role: user.role,
     };
   }
 }
-
-//

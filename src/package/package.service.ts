@@ -5,13 +5,14 @@ import {
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
-import { ObjectId } from 'mongodb';
 import { Package, PackageDocument } from './entities/package.entity';
 import { GetAllPackages } from './types/interfaces/getAllPackages';
 import { OrdersService } from '../orders/orders.service';
 import { PackageDto } from './dto/package.dto';
 import { AddPackageDto } from './dto/addPackageDto';
 import { validateIdMongo } from 'src/helpers/validateIdMongo';
+import { UserService } from 'src/user/user.service';
+import { UserDocument } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class PackageService {
@@ -19,22 +20,24 @@ export class PackageService {
     @InjectModel('Package')
     private packageModel: Model<PackageDocument>,
     private orderService: OrdersService,
+    private userService: UserService,
   ) {}
   async getAllPackages(): Promise<GetAllPackages[]> {
     return this.packageModel.find({}).select('-createdAt -updatedAt');
   }
 
-  async buyPackage(userId: ObjectId, packageId: string): Promise<void> {
+  async buyPackage(userId: string, packageId: string): Promise<void> {
     if (!validateIdMongo(packageId)) {
       throw new BadRequestException('invalid Id');
     }
     const findPackage = await this.findPackageById(packageId);
     if (!findPackage) throw new NotFoundException('Package not found');
     await this.orderService.createOrder(userId, findPackage._id);
+    await this.userService.incrementDays(userId, findPackage.days);
   }
 
-  async getPackages(userId: ObjectId): Promise<object> {
-    return await this.orderService.getPackagesByOrders(userId);
+  async getPackages(user: UserDocument): Promise<Package[]> {
+    return await this.orderService.getPackagesByOrders(user);
   }
 
   async addPackage(body: AddPackageDto): Promise<Package> {

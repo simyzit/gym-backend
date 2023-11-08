@@ -10,10 +10,10 @@ import { Profile } from 'passport';
 import { v4 } from 'uuid';
 import { RegisterUser } from 'src/auth/types/interfaces/register.user';
 import { RegisterDto } from 'src/auth/dto/register.dto';
-import { RoleDto } from './dto/role.dto';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { validateIdMongo } from 'src/helpers/validateIdMongo';
 import { CloudinaryService } from 'nestjs-cloudinary';
+import { UpdateUserDto } from './dto/updateUser.dto';
 
 @Injectable()
 export class UserService {
@@ -53,12 +53,12 @@ export class UserService {
       .select('_id name surname email phone avatarURL role');
   }
 
-  async updateUserRole(id: string, body: RoleDto): Promise<User> {
+  async updateUser(id: string, body: UpdateUserDto): Promise<User> {
     if (!validateIdMongo(id)) {
       throw new BadRequestException('invalid Id');
     }
     const findUser = await this.userModel
-      .findByIdAndUpdate(id, { role: body.role }, { new: true })
+      .findByIdAndUpdate(id, body, { new: true })
       .select('_id name surname email phone avatarURL role');
     if (!findUser) throw new NotFoundException('User not found');
     return findUser;
@@ -85,6 +85,10 @@ export class UserService {
     });
     await this.userModel.findByIdAndUpdate(id, { avatarURL: avatar.url });
     return { avatarURL: avatar.url };
+  }
+
+  async incrementDays(id: string, days: number): Promise<void> {
+    await this.userModel.findByIdAndUpdate(id, { $inc: { days: days } });
   }
 
   async findUserByToken(refreshToken: string): Promise<UserDocument | null> {

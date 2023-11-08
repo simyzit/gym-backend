@@ -15,14 +15,14 @@ import { GetAllPackages } from './types/interfaces/getAllPackages';
 import { Message } from 'src/auth/types/interfaces/message';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 import { CurrentUser } from '../user/decorators/user.decorator';
-import { UserDocument } from 'src/user/entities/user.entity';
-import { ObjectId } from 'mongodb';
 import { RoleGuard } from 'src/auth/guards/role.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { PackageDto } from './dto/package.dto';
 import { validationOption } from 'src/helpers/validationOptions';
 import { Package } from './entities/package.entity';
 import { AddPackageDto } from './dto/addPackageDto';
+import { Role } from 'src/user/types/enum/role';
+import { UserDocument } from 'src/user/entities/user.entity';
 
 @Controller('package')
 export class PackageController {
@@ -33,7 +33,7 @@ export class PackageController {
     return await this.packageService.getAllPackages();
   }
 
-  @Roles('admin', 'manager')
+  @Roles(Role.ADMIN, Role.MANAGER)
   @UseGuards(JwtAuthGuard, RoleGuard)
   @UsePipes(new ValidationPipe(validationOption))
   @Post('/add')
@@ -43,29 +43,28 @@ export class PackageController {
 
   @UseGuards(JwtAuthGuard)
   @Get('/')
-  async getPackages(@CurrentUser('_id') _id: ObjectId): Promise<object> {
-    return await this.packageService.getPackages(_id);
+  async getPackages(@CurrentUser() user: UserDocument): Promise<Package[]> {
+    return await this.packageService.getPackages(user);
   }
 
-  @Roles('user')
-  @UseGuards(JwtAuthGuard, RoleGuard)
+  @UseGuards(JwtAuthGuard)
   @Post('/:id')
   async buyPackage(
     @Param('id') id: string,
-    @CurrentUser() user: UserDocument,
+    @CurrentUser('_id') userId: string,
   ): Promise<Message> {
-    await this.packageService.buyPackage(user._id, id);
+    await this.packageService.buyPackage(userId, id);
     return { message: 'Package added successfully' };
   }
 
-  @Roles('admin', 'manager')
+  @Roles(Role.ADMIN, Role.MANAGER)
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Delete('/:id')
   async deletePackage(@Param('id') id: string): Promise<Package> {
     return await this.packageService.deletePackage(id);
   }
 
-  @Roles('admin', 'manager')
+  @Roles(Role.ADMIN, Role.MANAGER)
   @UsePipes(new ValidationPipe(validationOption))
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Patch('/:id')
