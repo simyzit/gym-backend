@@ -12,10 +12,10 @@ import regexpUser from '../regexp';
 
 @Schema({ versionKey: false, timestamps: true })
 export class User {
-  @Prop({ type: String, required: true, match: regexpUser.nameRegexp })
+  @Prop({ type: String, required: true })
   name: string;
 
-  @Prop({ type: String, required: true, match: regexpUser.surnameRegexp })
+  @Prop({ type: String, required: true })
   surname: string;
 
   @Prop({
