@@ -27,6 +27,7 @@ import { Message } from './types/interfaces/message';
 import { Token } from '../token/types/interfaces/tokens';
 import { LoginUser } from './types/interfaces/login.user';
 import { validationOption } from 'src/helpers/validationOptions';
+import { ObjectId } from 'mongodb';
 
 @Controller('auth')
 export class AuthController {
@@ -62,7 +63,7 @@ export class AuthController {
     const data = await this.authService.loginSocialNetwork(currentUser);
 
     response.redirect(
-      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}&days=${data.user.days}`,
+      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}&days=${data.user.days}&qrcode=${data.user.qrCode}`,
     );
   }
 
@@ -75,7 +76,7 @@ export class AuthController {
     const data = await this.authService.loginSocialNetwork(currentUser);
 
     response.redirect(
-      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}`,
+      `${process.env.FRONTEND_DOMAIN_PROD}/?accessToken=${data.accessToken}&refreshToken=${data.refreshToken}&email=${data.user.email}&name=${data.user.name}&surname=${data.user.surname}&avatar=${data.user.avatarURL}&role=${data.user.role}&days=${data.user.days}&qrcode=${data.user.qrCode}`,
     );
   }
 
@@ -105,9 +106,7 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @Get('logout')
   @HttpCode(204)
-  async logout(
-    @CurrentUser('_id') _id: Pick<UserDocument, '_id'>,
-  ): Promise<void> {
+  async logout(@CurrentUser('_id') _id: ObjectId): Promise<void> {
     await this.authService.logout(_id);
   }
 

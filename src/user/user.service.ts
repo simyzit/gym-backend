@@ -6,14 +6,13 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { User, UserDocument } from './entities/user.entity';
-import { Profile } from 'passport';
-import { v4 } from 'uuid';
-import { RegisterUser } from 'src/auth/types/interfaces/register.user';
 import { RegisterDto } from 'src/auth/dto/register.dto';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { validateIdMongo } from 'src/helpers/validateIdMongo';
-import { CloudinaryService } from 'nestjs-cloudinary';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { RegisterSocial } from 'src/auth/types/interfaces/registerSocial.dto';
+import { ObjectId } from 'mongodb';
 
 @Injectable()
 export class UserService {
@@ -23,27 +22,14 @@ export class UserService {
   ) {}
 
   async createUser(
-    body: RegisterDto,
-    verificationToken: string,
+    body: RegisterDto | RegisterSocial,
+    verificationToken: string | null,
     avatarURL: string,
   ): Promise<UserDocument> {
     return await this.userModel.create({
       ...body,
-      password: body.password,
       verificationToken,
       avatarURL,
-    });
-  }
-
-  async addUserSocialNetwork(profile: Profile): Promise<RegisterUser> {
-    const password = v4();
-    return await this.userModel.create({
-      name: profile.name.givenName,
-      surname: profile.name.familyName,
-      email: profile.emails[0].value,
-      avatarURL: profile.photos[0].value,
-      password,
-      verify: true,
     });
   }
 
@@ -79,10 +65,12 @@ export class UserService {
       .select('name surname email phone');
   }
 
-  async updateAvatar(id: string, file: Express.Multer.File): Promise<object> {
-    const avatar = await this.cloudinaryService.uploadFile(file, {
-      folder: 'avatars',
-    });
+  async updateAvatar(
+    id: string,
+    file: Express.Multer.File,
+  ): Promise<{ avatarURL: string }> {
+    console.log(file);
+    const avatar = await this.cloudinaryService.uploadFile(file, 'avatars');
     await this.userModel.findByIdAndUpdate(id, { avatarURL: avatar.url });
     return { avatarURL: avatar.url };
   }
@@ -91,15 +79,19 @@ export class UserService {
     await this.userModel.findByIdAndUpdate(id, { $inc: { days: days } });
   }
 
-  async findUserByToken(refreshToken: string): Promise<UserDocument | null> {
-    return await this.userModel.findOne({ refreshToken });
+  async decrementDays(id: ObjectId): Promise<void> {
+    await this.userModel.findByIdAndUpdate(id, { $inc: { days: -1 } });
   }
 
-  async findUserByEmail(email: string): Promise<UserDocument | null> {
-    return await this.userModel.findOne({ email });
+  async findUser(obj: object): Promise<UserDocument | null> {
+    return await this.userModel.findOne(obj);
   }
 
   async findUserById(id: string): Promise<UserDocument | null> {
     return await this.userModel.findById(id);
+  }
+
+  async findByIdAndUpdateUser(_id: ObjectId, obj: object): Promise<void> {
+    await this.userModel.findByIdAndUpdate(_id, obj);
   }
 }

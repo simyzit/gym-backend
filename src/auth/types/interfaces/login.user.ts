@@ -8,5 +8,6 @@ export interface LoginUser {
     avatarURL: string;
     role: string;
     days: number;
+    qrCode: string;
   };
 }

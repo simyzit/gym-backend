@@ -31,6 +31,26 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @Roles(Role.ADMIN, Role.MANAGER)
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Get('/')
+  async getUsers(@CurrentUser('_id') _id: string): Promise<User[]> {
+    return await this.userService.getUsers(_id);
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get('current')
+  async getCurrentUser(@CurrentUser() user: User): Promise<Current> {
+    return {
+      email: user.email,
+      name: user.name,
+      surname: user.surname,
+      phone: user.phone,
+      avatarURL: user.avatarURL,
+      role: user.role,
+    };
+  }
+
   @Patch('profile')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe(validationOption))
@@ -39,13 +59,6 @@ export class UserController {
     @Body() body: UpdateProfileDto,
   ): Promise<User> {
     return await this.userService.updateUserProfile(_id, body);
-  }
-
-  @Roles(Role.ADMIN, Role.MANAGER)
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Get('/')
-  async getUsers(@CurrentUser('_id') _id: string): Promise<User[]> {
-    return await this.userService.getUsers(_id);
   }
 
   @UseGuards(JwtAuthGuard)
@@ -82,18 +95,5 @@ export class UserController {
   @Delete('/:id')
   async deleteUser(@Param('id') id: string): Promise<User> {
     return await this.userService.deleteUser(id);
-  }
-
-  @UseGuards(JwtAuthGuard)
-  @Get('current')
-  async getCurrentUser(@CurrentUser() user: User): Promise<Current> {
-    return {
-      email: user.email,
-      name: user.name,
-      surname: user.surname,
-      phone: user.phone,
-      avatarURL: user.avatarURL,
-      role: user.role,
-    };
   }
 }

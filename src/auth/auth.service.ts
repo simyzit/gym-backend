@@ -2,6 +2,7 @@
 import {
   BadRequestException,
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
   UnauthorizedException,
@@ -11,8 +12,7 @@ import * as argon2 from 'argon2';
 import * as gravatar from 'gravatar';
 import { MailService } from '../mail/mail.service';
 import { v4 } from 'uuid';
-import { Model } from 'mongoose';
-import { User, UserDocument } from 'src/user/entities/user.entity';
+import { UserDocument } from 'src/user/entities/user.entity';
 import { InjectModel } from '@nestjs/mongoose';
 import { ConfigService } from '@nestjs/config';
 import { TokenService } from '../token/token.service';
@@ -20,20 +20,23 @@ import { RegisterUser } from './types/interfaces/register.user';
 import { Token } from '../token/types/interfaces/tokens';
 import { LoginUser } from './types/interfaces/login.user';
 import { RegisterDto } from './dto/register.dto';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
+import { Profile } from 'passport';
+import { ObjectId } from 'mongodb';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel('User')
-    private userModel: Model<UserDocument>,
     private userService: UserService,
     private mailService: MailService,
     private configService: ConfigService,
     private tokenService: TokenService,
+    private qrCodeService: QrCodeService,
   ) {}
   async register(body: RegisterDto): Promise<RegisterUser> {
     const { email, name } = body;
-    const findUser = await this.userService.findUserByEmail(email);
+    const findUser = await this.userService.findUser({ email });
 
     if (findUser) {
       throw new ConflictException('Email address is already registered');
@@ -45,6 +48,8 @@ export class AuthService {
       verificationToken,
       avatarURL,
     );
+
+    await this.qrCodeService.createQrCode(data._id);
     await this.mailService.sendEmailConfirmation({
       name,
       email,
@@ -57,9 +62,9 @@ export class AuthService {
     };
   }
 
-  async login(body: Pick<User, 'email' | 'password'>): Promise<LoginUser> {
+  async login(body: LoginDto): Promise<LoginUser> {
     const { email, password } = body;
-    const findUser = await this.userService.findUserByEmail(email);
+    const findUser = await this.userService.findUser({ email });
 
     if (!findUser) throw new NotFoundException(`User not found`);
     const passCompare = await argon2.verify(findUser.password, password);
@@ -71,8 +76,8 @@ export class AuthService {
     }
 
     const tokens = await this.tokenService.generateTokens(findUser._id);
-
-    await this.userModel.findByIdAndUpdate(findUser._id, tokens);
+    const qrCode = await this.qrCodeService.findQrCode(findUser._id);
+    await this.userService.findByIdAndUpdateUser(findUser._id, tokens);
 
     return {
       ...tokens,
@@ -83,21 +88,37 @@ export class AuthService {
         avatarURL: findUser.avatarURL,
         role: findUser.role,
         days: findUser.days,
+        qrCode: qrCode.imageURL,
       },
     };
   }
 
-  async logout(_id: Pick<UserDocument, '_id'>): Promise<void> {
-    await this.userModel.findByIdAndUpdate(_id, {
+  async logout(_id: ObjectId): Promise<void> {
+    await this.userService.findByIdAndUpdateUser(_id, {
       accessToken: null,
       refreshToken: null,
     });
   }
 
+  async registerUserSocialNetwork(profile: Profile): Promise<RegisterUser> {
+    const password = v4();
+    const avatarURL = profile.photos[0].value;
+    const user = {
+      name: profile.name.givenName,
+      surname: profile.name.familyName,
+      email: profile.emails[0].value,
+      password,
+      verify: true,
+    };
+    const data = await this.userService.createUser(user, null, avatarURL);
+    await this.qrCodeService.createQrCode(data._id);
+    return data;
+  }
+
   async loginSocialNetwork(user: UserDocument): Promise<LoginUser> {
     const tokens = await this.tokenService.generateTokens(user._id);
-
-    await this.userModel.findByIdAndUpdate(user._id, tokens);
+    const qrCode = await this.qrCodeService.findQrCode(user._id);
+    await this.userService.findByIdAndUpdateUser(user._id, tokens);
 
     return {
       ...tokens,
@@ -108,45 +129,43 @@ export class AuthService {
         avatarURL: user.avatarURL,
         role: user.role,
         days: user.days,
+        qrCode: qrCode.imageURL,
       },
     };
   }
 
   async verifyEmail(verificationToken: string): Promise<void> {
-    const findUser = await this.userModel.findOne({ verificationToken });
+    const findUser = await this.userService.findUser({ verificationToken });
 
     if (!findUser) throw new NotFoundException();
-
-    await this.userModel.findByIdAndUpdate(findUser._id, {
+    await this.userService.findByIdAndUpdateUser(findUser._id, {
       verificationToken: null,
       verify: true,
     });
   }
 
-  async verifyAgain(reqMail: string): Promise<void> {
-    const findUser = await this.userService.findUserByEmail(reqMail);
+  async verifyAgain(email: string): Promise<void> {
+    const findUser = await this.userService.findUser({ email });
 
     if (!findUser) throw new NotFoundException('User not found');
 
-    const { verify, verificationToken, name, email } = findUser;
-
-    if (verify) {
+    if (findUser.verify) {
       throw new BadRequestException('Verification has already been passed');
     }
 
     await this.mailService.sendEmailConfirmation({
-      name,
-      email,
-      verificationToken,
+      name: findUser.name,
+      email: findUser.email,
+      verificationToken: findUser.verificationToken,
     });
   }
 
   async forgotPassword(email: string): Promise<void> {
-    const findUser = await this.userService.findUserByEmail(email);
+    const findUser = await this.userService.findUser({ email });
     if (!findUser) throw new NotFoundException();
     const newPassword = v4();
     const hashPassword = await argon2.hash(newPassword);
-    await this.userModel.findByIdAndUpdate(findUser._id, {
+    await this.userService.findByIdAndUpdateUser(findUser._id, {
       password: hashPassword,
     });
     await this.mailService.emailForgotPassword(
@@ -161,19 +180,15 @@ export class AuthService {
       token,
       this.configService.get('refreshSecretKey'),
     );
-    const data = await this.userService.findUserByToken(token);
+    const data = await this.userService.findUser({ refreshToken: token });
     if (!valid || !data) {
-      throw new UnauthorizedException('Invalid refresh token');
+      throw new ForbiddenException('Invalid refresh token');
     }
 
-    const { accessToken, refreshToken } =
-      await this.tokenService.generateTokens(data._id);
+    const tokens = await this.tokenService.generateTokens(data._id);
 
-    await this.userModel.findByIdAndUpdate(data._id, {
-      accessToken,
-      refreshToken,
-    });
+    await this.userService.findByIdAndUpdateUser(data._id, tokens);
 
-    return { accessToken, refreshToken };
+    return tokens;
   }
 }

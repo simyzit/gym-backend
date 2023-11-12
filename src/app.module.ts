@@ -9,7 +9,9 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { TokenModule } from './token/token.module';
 import { PackageModule } from './package/package.module';
 import { OrdersModule } from './orders/orders.module';
-import { NestCloudinaryClientModule } from './cloudinary/cloudinary.module';
+import { CloudinaryModule } from './cloudinary/cloudinary.module';
+import { QrCodeModule } from './qr-code/qr-code.module';
+import { VisitModule } from './visit/visit.module';
 
 @Module({
   imports: [
@@ -24,7 +26,9 @@ import { NestCloudinaryClientModule } from './cloudinary/cloudinary.module';
     TokenModule,
     PackageModule,
     OrdersModule,
-    NestCloudinaryClientModule,
+    CloudinaryModule,
+    QrCodeModule,
+    VisitModule,
   ],
   providers: [],
 })

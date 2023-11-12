@@ -1,13 +1,13 @@
 import { Module } from '@nestjs/common';
 import { CloudinaryService } from './cloudinary.service';
-import { CloudinaryModule } from 'nestjs-cloudinary';
+import { CloudinaryModule as Cloudinary } from 'nestjs-cloudinary';
 
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getCloudinaryConfig } from 'src/config/cloudinary.config';
 
 @Module({
   imports: [
-    CloudinaryModule.forRootAsync({
+    Cloudinary.forRootAsync({
       imports: [ConfigModule],
       useFactory: getCloudinaryConfig,
       inject: [ConfigService],
@@ -16,4 +16,4 @@ import { getCloudinaryConfig } from 'src/config/cloudinary.config';
   providers: [CloudinaryService],
   exports: [CloudinaryService],
 })
-export class NestCloudinaryClientModule {}
+export class CloudinaryModule {}
