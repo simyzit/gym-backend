@@ -5,4 +5,5 @@ export interface Current {
   phone: string;
   avatarURL: string;
   role: string;
+  days: number;
 }

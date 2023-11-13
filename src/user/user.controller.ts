@@ -48,6 +48,7 @@ export class UserController {
       phone: user.phone,
       avatarURL: user.avatarURL,
       role: user.role,
+      days: user.days,
     };
   }
 
