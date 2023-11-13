@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsString,
   Matches,
+  MinLength,
   NotContains,
 } from 'class-validator';
 
@@ -17,6 +18,21 @@ export class UpdateUserDto {
   @IsNotEmpty()
   @NotContains(' ', { message: 'name should not contain a spaces' })
   name: boolean;
+
+  @IsNotEmpty()
+  @IsOptional()
+  @IsString()
+  @NotContains(' ', { message: 'surname should not contain a spaces' })
+  @Matches(regexpUser.surnameRegexp, {
+    message: 'surname must be surname format',
+  })
+  surname: string;
+
+  @IsNotEmpty()
+  @IsString()
+  @IsOptional()
+  @MinLength(5)
+  phone: string;
 
   @IsNotEmpty()
   @IsString()
