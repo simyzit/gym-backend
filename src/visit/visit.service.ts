@@ -9,6 +9,8 @@ import { Model } from 'mongoose';
 import { VisitDocument } from './entities/visit.entity';
 import { validateIdMongo } from 'src/helpers/validateIdMongo';
 import { UserService } from 'src/user/user.service';
+import { filterByRole } from 'src/helpers/filterByRole';
+import { UserDocument } from 'src/user/entities/user.entity';
 
 @Injectable()
 export class VisitService {
@@ -29,5 +31,31 @@ export class VisitService {
 
     await this.visitModel.create({ userId: findUserById._id });
     await this.userService.decrementDays(findUserById._id);
+  }
+
+  async getVisits(user: UserDocument): Promise<VisitDocument[]> {
+    return this.visitModel.aggregate([
+      {
+        $match: filterByRole(user),
+      },
+      {
+        $lookup: {
+          from: 'users',
+          localField: 'userId',
+          foreignField: '_id',
+          as: 'user',
+        },
+      },
+      {
+        $project: {
+          _id: 1,
+          userName: {
+            $ifNull: [{ $arrayElemAt: ['$user.name', 0] }, 'deleted'],
+          },
+          createdAt: 1,
+          updatedAt: 1,
+        },
+      },
+    ]);
   }
 }

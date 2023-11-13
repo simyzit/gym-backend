@@ -65,8 +65,12 @@ export class OrdersService {
       {
         $project: {
           _id: 1,
-          userName: { $arrayElemAt: ['$user.name', 0] },
-          packageName: { $arrayElemAt: ['$package.name', 0] },
+          userName: {
+            $ifNull: [{ $arrayElemAt: ['$user.name', 0] }, 'deleted'],
+          },
+          packageName: {
+            $ifNull: [{ $arrayElemAt: ['$package.name', 0] }, 'deleted'],
+          },
           createdAt: 1,
           updatedAt: 1,
         },
