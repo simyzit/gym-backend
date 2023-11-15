@@ -15,7 +15,6 @@ export class MailService {
     verificationToken: string;
   }): Promise<void> {
     const { name, email, verificationToken } = param;
-
     await this.mailerService.sendMail({
       to: email,
       subject: 'Welcome to Nice App! Confirm your Email',
