@@ -16,7 +16,7 @@ import {
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { CurrentUser } from './decorators/user.decorator';
-import { User } from './entities/user.entity';
+import { User, UserDocument } from './entities/user.entity';
 import { Current } from './types/interfaces/current.user';
 import { Role } from './types/enum/role';
 import { Roles } from 'src/auth/decorators/roles.decorator';
@@ -40,7 +40,8 @@ export class UserController {
 
   @UseGuards(JwtAuthGuard)
   @Get('current')
-  async getCurrentUser(@CurrentUser() user: User): Promise<Current> {
+  async getCurrentUser(@CurrentUser() user: UserDocument): Promise<Current> {
+    const data = await this.userService.currentUser(user._id);
     return {
       email: user.email,
       name: user.name,
@@ -49,6 +50,7 @@ export class UserController {
       avatarURL: user.avatarURL,
       role: user.role,
       days: user.days,
+      qrCode: data.imageURL,
     };
   }
 

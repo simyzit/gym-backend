@@ -13,12 +13,15 @@ import { UpdateUserDto } from './dto/updateUser.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
 import { RegisterSocial } from 'src/auth/types/interfaces/registerSocial.dto';
 import { ObjectId } from 'mongodb';
+import { QrCode } from 'src/qr-code/entities/qr-code.entity';
+import { QrCodeService } from 'src/qr-code/qr-code.service';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectModel('User') private userModel: Model<UserDocument>,
     private cloudinaryService: CloudinaryService,
+    private qrCodeService: QrCodeService,
   ) {}
 
   async createUser(
@@ -48,6 +51,10 @@ export class UserService {
       .select('_id name surname email phone avatarURL role');
     if (!findUser) throw new NotFoundException('User not found');
     return findUser;
+  }
+
+  async currentUser(id: ObjectId): Promise<QrCode> {
+    return this.qrCodeService.findQrCode(id);
   }
 
   async deleteUser(id: string): Promise<User> {

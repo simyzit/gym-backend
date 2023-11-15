@@ -6,4 +6,5 @@ export interface Current {
   avatarURL: string;
   role: string;
   days: number;
+  qrCode: string;
 }
