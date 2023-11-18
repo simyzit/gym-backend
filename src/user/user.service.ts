@@ -86,7 +86,6 @@ export class UserService {
     id: string,
     file: Express.Multer.File,
   ): Promise<{ avatarURL: string }> {
-    console.log(file);
     const avatar = await this.cloudinaryService.uploadFile(file, 'avatars');
     await this.userModel.findByIdAndUpdate(id, { avatarURL: avatar.url });
     return { avatarURL: avatar.url };
