@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -19,18 +18,19 @@ export class VisitService {
     private userService: UserService,
   ) {}
 
-  async createVisit(id: string): Promise<void> {
+  async createVisit(id: string): Promise<boolean> {
     if (!validateIdMongo(id)) {
       throw new BadRequestException('invalid Id');
     }
     const findUserById = await this.userService.findUserById(id);
     if (!findUserById) throw new NotFoundException();
     if (findUserById.days === 0) {
-      throw new ForbiddenException('You have run out of visits');
+      return false;
     }
 
     await this.visitModel.create({ userId: findUserById._id });
     await this.userService.decrementDays(findUserById._id);
+    return true;
   }
 
   async getVisits(user: UserDocument): Promise<VisitDocument[]> {

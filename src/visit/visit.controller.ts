@@ -1,10 +1,10 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import { Controller, Get, Param, Res, UseGuards } from '@nestjs/common';
 import { VisitService } from './visit.service';
-import { Message } from 'src/auth/types/interfaces/message';
 import { CurrentUser } from 'src/user/decorators/user.decorator';
 import { VisitDocument } from './entities/visit.entity';
 import { JwtAuthGuard } from 'src/auth/guards/jwt.guard';
 import { UserDocument } from 'src/user/entities/user.entity';
+import { Response } from 'express';
 
 @Controller('visit')
 export class VisitController {
@@ -17,8 +17,12 @@ export class VisitController {
   }
 
   @Get('/:id')
-  async createVisit(@Param('id') id: string): Promise<Message> {
-    await this.visitService.createVisit(id);
-    return { message: 'The visit was successful' };
+  async createVisit(
+    @Res() res: Response,
+    @Param('id') id: string,
+  ): Promise<void> {
+    const data = await this.visitService.createVisit(id);
+    if (data) res.redirect(`${process.env.FRONTEND_DOMAIN_PROD}/success-visit`);
+    res.redirect(`${process.env.FRONTEND_DOMAIN_PROD}/unsuccess-visit`);
   }
 }

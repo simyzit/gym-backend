@@ -92,7 +92,7 @@ export class AuthController {
     @Param('verificationToken') verificationToken: string,
   ): Promise<void> {
     await this.authService.verifyEmail(verificationToken);
-    response.redirect(`${process.env.FRONTEND_DOMAIN_PROD}/success`);
+    response.redirect(`${process.env.FRONTEND_DOMAIN_PROD}/success-verified`);
   }
 
   @UsePipes(new ValidationPipe(validationOption))
@@ -115,11 +115,5 @@ export class AuthController {
   @HttpCode(200)
   async refreshToken(@Body() body: RefreshDto): Promise<Token> {
     return await this.authService.refreshToken(body.refreshToken);
-  }
-
-  @Get('cron')
-  @HttpCode(201)
-  async send(): Promise<Message> {
-    return { message: 'ok' };
   }
 }
