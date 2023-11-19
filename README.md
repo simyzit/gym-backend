@@ -71,3 +71,17 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](LICENSE).
+
+
+## HOW LAUNCH APP
+
+ - create .env file at the root of the project and in this file add your environment variables (example in env.example);
+
+ - run in terminal npm ci or npm i
+
+ - app will be started on port 4000
+
+
+## HOW LAUNCH APP with Docker
+
+  - docker run -d --name application-gym  -p 4000:4000 edwardops/application-gym:v1.0.0
