@@ -27,7 +27,7 @@ import { validationOption } from 'src/helpers/validationOptions';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/updateUser.dto';
-import { MongoExceptionFilter } from 'src/filters/mongo-exeptiom.filter';
+import { MongoExceptionFilter } from 'src/filters/mongo-exeption.filter';
 
 @Controller('user')
 export class UserController {
