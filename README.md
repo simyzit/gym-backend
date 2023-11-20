@@ -79,8 +79,9 @@ Nest is [MIT licensed](LICENSE).
 
  - run in terminal npm ci or npm i
 
- - app will be started on port 4000
+ - start dev command: npm run start:dev
 
+ - app will be started on port 4000
 
 ## HOW LAUNCH APP with Docker
 
