@@ -9,6 +9,7 @@ import {
   ParseFilePipe,
   Patch,
   UploadedFile,
+  UseFilters,
   UseGuards,
   UseInterceptors,
   UsePipes,
@@ -26,6 +27,7 @@ import { validationOption } from 'src/helpers/validationOptions';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UpdateUserDto } from './dto/updateUser.dto';
+import { MongoExceptionFilter } from 'src/filters/mongo-exeptiom.filter';
 
 @Controller('user')
 export class UserController {
@@ -57,6 +59,7 @@ export class UserController {
   @Patch('profile')
   @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe(validationOption))
+  @UseFilters(MongoExceptionFilter)
   async updateUserProfile(
     @CurrentUser('_id') _id: string,
     @Body() body: UpdateProfileDto,
@@ -86,6 +89,7 @@ export class UserController {
   @UseGuards(JwtAuthGuard, RoleGuard)
   @UsePipes(new ValidationPipe(validationOption))
   @Patch('/:id')
+  @UseFilters(MongoExceptionFilter)
   async updateUser(
     @Param('id') id: string,
     @Body() body: UpdateUserDto,

@@ -1,6 +1,5 @@
 import {
   BadRequestException,
-  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -48,10 +47,6 @@ export class UserService {
       throw new BadRequestException('invalid Id');
     }
 
-    const { email } = body;
-    if (email && (await this.findUser({ email }))) {
-      throw new ConflictException('Email already use');
-    }
     const findUser = await this.userModel
       .findByIdAndUpdate(id, body, { new: true })
       .select('_id name surname email phone avatarURL role');
@@ -73,10 +68,6 @@ export class UserService {
   }
 
   async updateUserProfile(id: string, body: UpdateProfileDto): Promise<User> {
-    const { email } = body;
-    if (email && (await this.findUser({ email }))) {
-      throw new ConflictException('Email already use');
-    }
     return this.userModel
       .findByIdAndUpdate(id, body, { new: true })
       .select('name surname email phone');
