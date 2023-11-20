@@ -4,7 +4,7 @@ import * as mongoose from 'mongoose';
 
 @Catch(mongoose.mongo.MongoServerError)
 export class MongoExceptionFilter implements ExceptionFilter {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/explicit-function-return-type
   catch(exception: MongoServerError, host: ArgumentsHost) {
     switch (exception.code) {
       case 11000:
@@ -16,5 +16,3 @@ export class MongoExceptionFilter implements ExceptionFilter {
     }
   }
 }
-
-//
